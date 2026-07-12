@@ -1,0 +1,52 @@
+                                                                                            QUERY PLAN                                                                                            
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ GroupAggregate  (cost=34741.51..34747.94 rows=198 width=69) (actual time=959.408..994.337 rows=120 loops=1)
+   Group Key: (max(fr.center_sk)), dd.category
+   Buffers: shared hit=93008 read=19936, temp read=631 written=633
+   ->  Sort  (cost=34741.51..34742.00 rows=198 width=45) (actual time=959.124..963.693 rows=22642 loops=1)
+         Sort Key: (max(fr.center_sk)), dd.category
+         Sort Method: quicksort  Memory: 2378kB
+         Buffers: shared hit=93008 read=19936, temp read=631 written=633
+         ->  Nested Loop  (cost=33150.88..34733.96 rows=198 width=45) (actual time=565.278..922.441 rows=22642 loops=1)
+               Buffers: shared hit=93005 read=19936, temp read=631 written=633
+               ->  Finalize GroupAggregate  (cost=33150.46..33245.35 rows=198 width=178) (actual time=565.194..706.792 rows=22642 loops=1)
+                     Group Key: fr.repair_ticket_id
+                     Filter: ((min(fr.event_ts) FILTER (WHERE (ds.stage_order = 1)) IS NOT NULL) AND (max(fr.event_ts) FILTER (WHERE ds.is_terminal) IS NOT NULL))
+                     Rows Removed by Filter: 5320
+                     Buffers: shared hit=2437 read=19936, temp read=631 written=633
+                     ->  Gather Merge  (cost=33150.46..33238.35 rows=400 width=178) (actual time=565.169..650.864 rows=28048 loops=1)
+                           Workers Planned: 2
+                           Workers Launched: 2
+                           Buffers: shared hit=2437 read=19936, temp read=631 written=633
+                           ->  Partial GroupAggregate  (cost=32150.43..32192.16 rows=200 width=178) (actual time=455.360..506.964 rows=9349 loops=3)
+                                 Group Key: fr.repair_ticket_id
+                                 Buffers: shared hit=2437 read=19936, temp read=631 written=633
+                                 ->  Sort  (cost=32150.43..32156.11 rows=2270 width=173) (actual time=455.335..467.789 rows=43819 loops=3)
+                                       Sort Key: fr.repair_ticket_id
+                                       Sort Method: external merge  Disk: 2504kB
+                                       Buffers: shared hit=2437 read=19936, temp read=631 written=633
+                                       Worker 0:  Sort Method: external merge  Disk: 2544kB
+                                       Worker 1:  Sort Method: quicksort  Memory: 4024kB
+                                       ->  Hash Join  (cost=13.15..32023.90 rows=2270 width=173) (actual time=136.106..383.110 rows=43819 loops=3)
+                                             Hash Cond: (fr.status_sk = ds.status_sk)
+                                             Buffers: shared hit=2363 read=19936
+                                             ->  Parallel Seq Scan on fact_repair_flat fr  (cost=0.00..32002.06 rows=3243 width=178) (actual time=135.039..357.296 rows=43819 loops=3)
+                                                   Filter: ((event_ts >= '2025-06-01 00:00:00'::timestamp without time zone) AND (event_ts < '2025-07-01 00:00:00'::timestamp without time zone))
+                                                   Rows Removed by Filter: 475118
+                                                   Buffers: shared hit=2336 read=19936
+                                             ->  Hash  (cost=11.40..11.40 rows=140 width=11) (actual time=0.956..0.957 rows=7 loops=3)
+                                                   Buckets: 1024  Batches: 1  Memory Usage: 9kB
+                                                   Buffers: shared hit=3
+                                                   ->  Seq Scan on dim_status ds  (cost=0.00..11.40 rows=140 width=11) (actual time=0.930..0.934 rows=7 loops=3)
+                                                         Buffers: shared hit=3
+               ->  Index Scan using dim_device_pkey on dim_device dd  (cost=0.42..7.51 rows=1 width=29) (actual time=0.008..0.008 rows=1 loops=22642)
+                     Index Cond: (device_sk = (max(fr.device_sk)))
+                     Buffers: shared hit=90568
+ Planning:
+   Buffers: shared hit=244
+ Planning Time: 6.688 ms
+ Execution Time: 1102.925 ms
+(46 �����)
+
+
+--------------------------------------------------------------------------------

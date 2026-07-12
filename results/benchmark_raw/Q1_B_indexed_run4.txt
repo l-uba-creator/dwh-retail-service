@@ -1,0 +1,54 @@
+                                                                                            QUERY PLAN                                                                                            
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ HashAggregate  (cost=66473.32..66493.32 rows=1600 width=69) (actual time=784.521..784.834 rows=120 loops=1)
+   Group Key: tb.center_sk, dd.category
+   Batches: 1  Memory Usage: 129kB
+   Buffers: shared hit=5516 read=19136, temp read=1181 written=1182
+   ->  Hash Join  (cost=44140.94..64581.20 rows=108121 width=45) (actual time=579.129..750.177 rows=22642 loops=1)
+         Hash Cond: (tb.device_sk = dd.device_sk)
+         Buffers: shared hit=5516 read=19136, temp read=1181 written=1182
+         ->  Subquery Scan on tb  (cost=37460.94..55111.37 rows=108121 width=32) (actual time=486.842..576.773 rows=22642 loops=1)
+               Buffers: shared hit=3237 read=19136, temp read=624 written=625
+               ->  Finalize GroupAggregate  (cost=37460.94..54030.16 rows=108121 width=43) (actual time=486.841..571.940 rows=22642 loops=1)
+                     Group Key: fr.repair_ticket_id
+                     Filter: ((min(fr.event_ts) FILTER (WHERE (ds.stage_order = 1)) IS NOT NULL) AND (max(fr.event_ts) FILTER (WHERE ds.is_terminal) IS NOT NULL))
+                     Rows Removed by Filter: 5320
+                     Buffers: shared hit=3237 read=19136, temp read=624 written=625
+                     ->  Gather Merge  (cost=37460.94..51572.51 rows=109244 width=43) (actual time=486.831..537.395 rows=28047 loops=1)
+                           Workers Planned: 2
+                           Workers Launched: 2
+                           Buffers: shared hit=3237 read=19136, temp read=624 written=625
+                           ->  Partial GroupAggregate  (cost=36460.91..37963.02 rows=54622 width=43) (actual time=395.758..431.871 rows=9349 loops=3)
+                                 Group Key: fr.repair_ticket_id
+                                 Buffers: shared hit=3237 read=19136, temp read=624 written=625
+                                 ->  Sort  (cost=36460.91..36597.47 rows=54622 width=38) (actual time=395.734..403.767 rows=43819 loops=3)
+                                       Sort Key: fr.repair_ticket_id
+                                       Sort Method: external merge  Disk: 2504kB
+                                       Buffers: shared hit=3237 read=19136, temp read=624 written=625
+                                       Worker 0:  Sort Method: external merge  Disk: 2488kB
+                                       Worker 1:  Sort Method: quicksort  Memory: 4096kB
+                                       ->  Hash Join  (cost=13.15..32162.93 rows=54622 width=38) (actual time=131.888..339.031 rows=43819 loops=3)
+                                             Hash Cond: (fr.status_sk = ds.status_sk)
+                                             Buffers: shared hit=3163 read=19136
+                                             ->  Parallel Seq Scan on fact_repair_flat fr  (cost=0.00..32002.06 rows=54622 width=43) (actual time=131.166..317.696 rows=43819 loops=3)
+                                                   Filter: ((event_ts >= '2025-06-01 00:00:00'::timestamp without time zone) AND (event_ts < '2025-07-01 00:00:00'::timestamp without time zone))
+                                                   Rows Removed by Filter: 475118
+                                                   Buffers: shared hit=3136 read=19136
+                                             ->  Hash  (cost=11.40..11.40 rows=140 width=11) (actual time=0.628..0.629 rows=7 loops=3)
+                                                   Buckets: 1024  Batches: 1  Memory Usage: 9kB
+                                                   Buffers: shared hit=3
+                                                   ->  Seq Scan on dim_status ds  (cost=0.00..11.40 rows=140 width=11) (actual time=0.603..0.606 rows=7 loops=3)
+                                                         Buffers: shared hit=3
+         ->  Hash  (cost=3779.00..3779.00 rows=150000 width=29) (actual time=91.969..91.971 rows=150000 loops=1)
+               Buckets: 131072  Batches: 2  Memory Usage: 5784kB
+               Buffers: shared hit=2279, temp written=484
+               ->  Seq Scan on dim_device dd  (cost=0.00..3779.00 rows=150000 width=29) (actual time=0.060..39.773 rows=150000 loops=1)
+                     Buffers: shared hit=2279
+ Planning:
+   Buffers: shared hit=304
+ Planning Time: 8.355 ms
+ Execution Time: 798.027 ms
+(48 �����)
+
+
+--------------------------------------------------------------------------------

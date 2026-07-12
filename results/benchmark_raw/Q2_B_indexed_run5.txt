@@ -1,0 +1,24 @@
+                                                                                                                 QUERY PLAN                                                                                                                  
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ HashAggregate  (cost=16940.66..16984.40 rows=3499 width=46) (actual time=225.312..228.802 rows=3655 loops=1)
+   Group Key: fs.store_sk, fs.cell_id
+   Batches: 1  Memory Usage: 1745kB
+   Buffers: shared hit=3008 read=4032
+   ->  HashAggregate  (cost=15712.42..16065.87 rows=34992 width=41) (actual time=202.139..210.213 rows=9850 loops=1)
+         Group Key: fs.device_id, fs.cell_id, fs.store_sk
+         Filter: ((min(fs.event_ts) FILTER (WHERE ((fs.storage_event_type)::text = 'INCOMING'::text)) IS NOT NULL) AND (min(fs.event_ts) FILTER (WHERE ((fs.storage_event_type)::text = ANY ('{ISSUED,WRITTEN_OFF}'::text[]))) IS NOT NULL))
+         Batches: 1  Memory Usage: 3601kB
+         Rows Removed by Filter: 6755
+         Buffers: shared hit=3008 read=4032
+         ->  Seq Scan on fact_storage_flat fs  (cost=0.00..14918.83 rows=45348 width=40) (actual time=74.785..162.887 rows=46357 loops=1)
+               Filter: ((event_ts >= '2025-06-01 00:00:00'::timestamp without time zone) AND (event_ts < '2025-07-01 00:00:00'::timestamp without time zone))
+               Rows Removed by Filter: 478898
+               Buffers: shared hit=3008 read=4032
+ Planning:
+   Buffers: shared hit=215
+ Planning Time: 7.355 ms
+ Execution Time: 231.781 ms
+(18 �����)
+
+
+--------------------------------------------------------------------------------

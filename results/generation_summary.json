@@ -1,0 +1,12 @@
+{
+  "n_devices": 150000,
+  "n_customers": 100000,
+  "n_centers": 15,
+  "n_stores": 8,
+  "n_tickets": 300000,
+  "n_repair_events": 1560133,
+  "n_storage_flows": 150000,
+  "n_storage_events": 525304,
+  "injected_bad_fk_tickets": 631,
+  "injected_bad_order_tickets": 863
+}

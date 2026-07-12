@@ -1,0 +1,21 @@
+                                                                     QUERY PLAN                                                                     
+----------------------------------------------------------------------------------------------------------------------------------------------------
+ HashAggregate  (cost=8991.60..9041.57 rows=3998 width=46) (actual time=60.805..66.273 rows=3950 loops=1)
+   Group Key: store_sk, cell_id
+   Batches: 1  Memory Usage: 1745kB
+   Buffers: shared hit=2114
+   ->  Bitmap Heap Scan on mart_storage_turnover  (cost=1435.13..8770.11 rows=29532 width=20) (actual time=5.167..25.932 rows=29424 loops=1)
+         Recheck Cond: ((date_sk >= '2025-06-01'::date) AND (date_sk < '2025-07-01'::date))
+         Heap Blocks: exact=1836
+         Buffers: shared hit=2114
+         ->  Bitmap Index Scan on mart_storage_turnover_pkey  (cost=0.00..1427.74 rows=29532 width=0) (actual time=4.881..4.881 rows=29424 loops=1)
+               Index Cond: ((date_sk >= '2025-06-01'::date) AND (date_sk < '2025-07-01'::date))
+               Buffers: shared hit=278
+ Planning:
+   Buffers: shared hit=172
+ Planning Time: 3.518 ms
+ Execution Time: 68.256 ms
+(15 �����)
+
+
+--------------------------------------------------------------------------------

@@ -1,0 +1,36 @@
+                                                                                                                 QUERY PLAN                                                                                                                  
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ HashAggregate  (cost=11780.04..11783.21 rows=254 width=158) (actual time=368.686..377.206 rows=3655 loops=1)
+   Group Key: fs.store_sk, fs.cell_id
+   Batches: 1  Memory Usage: 1745kB
+   Buffers: shared hit=2568 read=4608
+   ->  Finalize GroupAggregate  (cost=11378.09..11716.49 rows=2542 width=288) (actual time=293.218..345.780 rows=9850 loops=1)
+         Group Key: fs.device_id, fs.cell_id, fs.store_sk
+         Filter: ((min(fs.event_ts) FILTER (WHERE ((fs.storage_event_type)::text = 'INCOMING'::text)) IS NOT NULL) AND (min(fs.event_ts) FILTER (WHERE ((fs.storage_event_type)::text = ANY ('{ISSUED,WRITTEN_OFF}'::text[]))) IS NOT NULL))
+         Rows Removed by Filter: 6755
+         Buffers: shared hit=2568 read=4608
+         ->  Gather Merge  (cost=11378.09..11663.46 rows=2188 width=288) (actual time=293.209..325.246 rows=16690 loops=1)
+               Workers Planned: 2
+               Workers Launched: 2
+               Buffers: shared hit=2568 read=4608
+               ->  Partial GroupAggregate  (cost=10378.07..10410.89 rows=1094 width=288) (actual time=161.925..181.303 rows=5563 loops=3)
+                     Group Key: fs.device_id, fs.cell_id, fs.store_sk
+                     Buffers: shared hit=2568 read=4608
+                     ->  Sort  (cost=10378.07..10380.80 rows=1094 width=358) (actual time=161.473..163.697 rows=15452 loops=3)
+                           Sort Key: fs.device_id, fs.cell_id, fs.store_sk
+                           Sort Method: quicksort  Memory: 1566kB
+                           Buffers: shared hit=2562 read=4608
+                           Worker 0:  Sort Method: quicksort  Memory: 2612kB
+                           Worker 1:  Sort Method: quicksort  Memory: 542kB
+                           ->  Parallel Seq Scan on fact_storage_flat fs  (cost=0.00..10322.84 rows=1094 width=358) (actual time=58.198..132.938 rows=15452 loops=3)
+                                 Filter: ((event_ts >= '2025-06-01 00:00:00'::timestamp without time zone) AND (event_ts < '2025-07-01 00:00:00'::timestamp without time zone))
+                                 Rows Removed by Filter: 159633
+                                 Buffers: shared hit=2432 read=4608
+ Planning:
+   Buffers: shared hit=137
+ Planning Time: 2.440 ms
+ Execution Time: 378.230 ms
+(30 �����)
+
+
+--------------------------------------------------------------------------------

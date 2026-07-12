@@ -1,0 +1,587 @@
+=== Idempotency check: run 1 vs run 2 on the same full-year window ===
+NOTE: the automated comparison in run_pipeline.py originally used a naive
+string comparison of UNION ALL output without ORDER BY, which produced a
+false MISMATCH due to row ordering differing between runs (fixed in
+scripts/run_pipeline.py by adding ORDER BY). The actual row counts below
+are IDENTICAL between run 1 and run 2, confirming idempotency.
+
+### RUN 1 (full load) ###
+
+=== sql\00_schema_staging.sql ===
+CREATE SCHEMA
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+
+
+=== sql\01_schema_dds.sql ===
+CREATE SCHEMA
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+CREATE TABLE
+
+
+=== sql\02_partition_helper.sql ===
+CREATE FUNCTION
+
+
+=== sql\03_schema_marts.sql ===
+CREATE SCHEMA
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+
+
+=== \copy stg.stg_devices FROM stg_devices.csv ===
+TRUNCATE TABLE
+
+COPY 150000
+
+
+=== \copy stg.stg_customers FROM stg_customers.csv ===
+TRUNCATE TABLE
+
+COPY 100000
+
+
+=== \copy stg.stg_service_centers FROM stg_service_centers.csv ===
+TRUNCATE TABLE
+
+COPY 15
+
+
+=== \copy stg.stg_stores FROM stg_stores.csv ===
+TRUNCATE TABLE
+
+COPY 8
+
+
+=== \copy stg.stg_statuses FROM stg_statuses.csv ===
+TRUNCATE TABLE
+
+COPY 7
+
+
+=== \copy stg.stg_repair_events FROM stg_repair_events.csv ===
+TRUNCATE TABLE
+
+COPY 1560133
+
+
+=== \copy stg.stg_storage_events FROM stg_storage_events.csv ===
+TRUNCATE TABLE
+
+COPY 525304
+
+
+=== sql\04_load_dims.sql ===
+INSERT 0 150000
+INSERT 0 100000
+INSERT 0 15
+INSERT 0 8
+INSERT 0 7
+INSERT 0 365
+
+ create_missing_partitions 
+---------------------------
+ 
+(1 ������)
+
+
+ create_missing_partitions 
+---------------------------
+ 
+(1 ������)
+
+
+
+--- loading window 2025-01-01 .. 2025-02-01 ---
+
+=== sql\05_load_fact_repair.sql ===
+INSERT 0 130035
+INSERT 0 313
+
+
+=== sql\05_load_fact_storage.sql ===
+INSERT 0 42854
+
+
+--- loading window 2025-02-01 .. 2025-03-01 ---
+
+=== sql\05_load_fact_repair.sql ===
+INSERT 0 122587
+INSERT 0 231
+
+
+=== sql\05_load_fact_storage.sql ===
+INSERT 0 42787
+
+
+--- loading window 2025-03-01 .. 2025-04-01 ---
+
+=== sql\05_load_fact_repair.sql ===
+INSERT 0 135434
+INSERT 0 300
+
+
+=== sql\05_load_fact_storage.sql ===
+INSERT 0 46690
+
+
+--- loading window 2025-04-01 .. 2025-05-01 ---
+
+=== sql\05_load_fact_repair.sql ===
+INSERT 0 130670
+INSERT 0 264
+
+
+=== sql\05_load_fact_storage.sql ===
+INSERT 0 45574
+
+
+--- loading window 2025-05-01 .. 2025-06-01 ---
+
+=== sql\05_load_fact_repair.sql ===
+INSERT 0 136152
+INSERT 0 251
+
+
+=== sql\05_load_fact_storage.sql ===
+INSERT 0 46370
+
+
+--- loading window 2025-06-01 .. 2025-07-01 ---
+
+=== sql\05_load_fact_repair.sql ===
+INSERT 0 131456
+INSERT 0 272
+
+
+=== sql\05_load_fact_storage.sql ===
+INSERT 0 46357
+
+
+--- loading window 2025-07-01 .. 2025-08-01 ---
+
+=== sql\05_load_fact_repair.sql ===
+INSERT 0 136721
+INSERT 0 315
+
+
+=== sql\05_load_fact_storage.sql ===
+INSERT 0 47218
+
+
+--- loading window 2025-08-01 .. 2025-09-01 ---
+
+=== sql\05_load_fact_repair.sql ===
+INSERT 0 134045
+INSERT 0 301
+
+
+=== sql\05_load_fact_storage.sql ===
+INSERT 0 47563
+
+
+--- loading window 2025-09-01 .. 2025-10-01 ---
+
+=== sql\05_load_fact_repair.sql ===
+INSERT 0 132536
+INSERT 0 259
+
+
+=== sql\05_load_fact_storage.sql ===
+INSERT 0 45365
+
+
+--- loading window 2025-10-01 .. 2025-11-01 ---
+
+=== sql\05_load_fact_repair.sql ===
+INSERT 0 136740
+INSERT 0 285
+
+
+=== sql\05_load_fact_storage.sql ===
+INSERT 0 47429
+
+
+--- loading window 2025-11-01 .. 2025-12-01 ---
+
+=== sql\05_load_fact_repair.sql ===
+INSERT 0 130761
+INSERT 0 235
+
+
+=== sql\05_load_fact_storage.sql ===
+INSERT 0 45973
+
+
+--- loading window 2025-12-01 .. 2026-01-01 ---
+
+=== sql\05_load_fact_repair.sql ===
+INSERT 0 99672
+INSERT 0 258
+
+
+=== sql\05_load_fact_storage.sql ===
+INSERT 0 21075
+
+
+=== sql\07_dq_status_order_check.sql ===
+INSERT 0 1389
+
+
+=== sql\06_build_marts.sql ===
+INSERT 0 43156
+INSERT 0 5462
+INSERT 0 334221
+
+
+=== sql\08_reconciliation_check.sql ===
+DO
+
+           t            |  count  
+------------------------+---------
+ fact_repair_quarantine |    4673
+ mart_center_load       |    5462
+ mart_repair_sla        |   43156
+ mart_storage_turnover  |  334221
+ fact_storage           |  525255
+ fact_repair            | 1556809
+(6 �����)
+
+
+           t            |  count  
+------------------------+---------
+ fact_repair_quarantine |    4673
+ mart_center_load       |    5462
+ mart_repair_sla        |   43156
+ mart_storage_turnover  |  334221
+ fact_storage           |  525255
+ fact_repair            | 1556809
+(6 �����)
+
+
+### RUN 2 (same window, staging reloaded, facts must not duplicate) ###
+
+=== sql\00_schema_staging.sql ===
+CREATE SCHEMA
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+
+
+=== sql\01_schema_dds.sql ===
+CREATE SCHEMA
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+CREATE TABLE
+
+
+=== sql\02_partition_helper.sql ===
+CREATE FUNCTION
+
+
+=== sql\03_schema_marts.sql ===
+CREATE SCHEMA
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+
+
+=== \copy stg.stg_devices FROM stg_devices.csv ===
+TRUNCATE TABLE
+
+COPY 150000
+
+
+=== \copy stg.stg_customers FROM stg_customers.csv ===
+TRUNCATE TABLE
+
+COPY 100000
+
+
+=== \copy stg.stg_service_centers FROM stg_service_centers.csv ===
+TRUNCATE TABLE
+
+COPY 15
+
+
+=== \copy stg.stg_stores FROM stg_stores.csv ===
+TRUNCATE TABLE
+
+COPY 8
+
+
+=== \copy stg.stg_statuses FROM stg_statuses.csv ===
+TRUNCATE TABLE
+
+COPY 7
+
+
+=== \copy stg.stg_repair_events FROM stg_repair_events.csv ===
+TRUNCATE TABLE
+
+COPY 1560133
+
+
+=== \copy stg.stg_storage_events FROM stg_storage_events.csv ===
+TRUNCATE TABLE
+
+COPY 525304
+
+
+=== sql\04_load_dims.sql ===
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+INSERT 0 0
+
+ create_missing_partitions 
+---------------------------
+ 
+(1 ������)
+
+
+ create_missing_partitions 
+---------------------------
+ 
+(1 ������)
+
+
+
+--- loading window 2025-01-01 .. 2025-02-01 ---
+
+=== sql\05_load_fact_repair.sql ===
+INSERT 0 0
+INSERT 0 0
+
+
+=== sql\05_load_fact_storage.sql ===
+INSERT 0 0
+
+
+--- loading window 2025-02-01 .. 2025-03-01 ---
+
+=== sql\05_load_fact_repair.sql ===
+INSERT 0 0
+INSERT 0 0
+
+
+=== sql\05_load_fact_storage.sql ===
+INSERT 0 0
+
+
+--- loading window 2025-03-01 .. 2025-04-01 ---
+
+=== sql\05_load_fact_repair.sql ===
+INSERT 0 0
+INSERT 0 0
+
+
+=== sql\05_load_fact_storage.sql ===
+INSERT 0 0
+
+
+--- loading window 2025-04-01 .. 2025-05-01 ---
+
+=== sql\05_load_fact_repair.sql ===
+INSERT 0 0
+INSERT 0 0
+
+
+=== sql\05_load_fact_storage.sql ===
+INSERT 0 0
+
+
+--- loading window 2025-05-01 .. 2025-06-01 ---
+
+=== sql\05_load_fact_repair.sql ===
+INSERT 0 0
+INSERT 0 0
+
+
+=== sql\05_load_fact_storage.sql ===
+INSERT 0 0
+
+
+--- loading window 2025-06-01 .. 2025-07-01 ---
+
+=== sql\05_load_fact_repair.sql ===
+INSERT 0 0
+INSERT 0 0
+
+
+=== sql\05_load_fact_storage.sql ===
+INSERT 0 0
+
+
+--- loading window 2025-07-01 .. 2025-08-01 ---
+
+=== sql\05_load_fact_repair.sql ===
+INSERT 0 0
+INSERT 0 0
+
+
+=== sql\05_load_fact_storage.sql ===
+INSERT 0 0
+
+
+--- loading window 2025-08-01 .. 2025-09-01 ---
+
+=== sql\05_load_fact_repair.sql ===
+INSERT 0 0
+INSERT 0 0
+
+
+=== sql\05_load_fact_storage.sql ===
+INSERT 0 0
+
+
+--- loading window 2025-09-01 .. 2025-10-01 ---
+
+=== sql\05_load_fact_repair.sql ===
+INSERT 0 0
+INSERT 0 0
+
+
+=== sql\05_load_fact_storage.sql ===
+INSERT 0 0
+
+
+--- loading window 2025-10-01 .. 2025-11-01 ---
+
+=== sql\05_load_fact_repair.sql ===
+INSERT 0 0
+INSERT 0 0
+
+
+=== sql\05_load_fact_storage.sql ===
+INSERT 0 0
+
+
+--- loading window 2025-11-01 .. 2025-12-01 ---
+
+=== sql\05_load_fact_repair.sql ===
+INSERT 0 0
+INSERT 0 0
+
+
+=== sql\05_load_fact_storage.sql ===
+INSERT 0 0
+
+
+--- loading window 2025-12-01 .. 2026-01-01 ---
+
+=== sql\05_load_fact_repair.sql ===
+INSERT 0 0
+INSERT 0 0
+
+
+=== sql\05_load_fact_storage.sql ===
+INSERT 0 0
+
+
+=== sql\07_dq_status_order_check.sql ===
+INSERT 0 0
+
+
+=== sql\06_build_marts.sql ===
+INSERT 0 43156
+INSERT 0 5462
+INSERT 0 334221
+
+
+=== sql\08_reconciliation_check.sql ===
+DO
+
+           t            |  count  
+------------------------+---------
+ fact_repair_quarantine |    4673
+ mart_center_load       |    5462
+ mart_repair_sla        |   43156
+ fact_storage           |  525255
+ mart_storage_turnover  |  334221
+ fact_repair            | 1556809
+(6 �����)
+
+
+           t            |  count  
+------------------------+---------
+ fact_repair_quarantine |    4673
+ mart_center_load       |    5462
+ mart_repair_sla        |   43156
+ fact_storage           |  525255
+ mart_storage_turnover  |  334221
+ fact_repair            | 1556809
+(6 �����)
+
+
+
+IDEMPOTENCY CHECK: MISMATCH!
+Run 1:
+            t            |  count  
+------------------------+---------
+ fact_repair_quarantine |    4673
+ mart_center_load       |    5462
+ mart_repair_sla        |   43156
+ mart_storage_turnover  |  334221
+ fact_storage           |  525255
+ fact_repair            | 1556809
+(6 �����)
+
+
+Run 2:
+            t            |  count  
+------------------------+---------
+ fact_repair_quarantine |    4673
+ mart_center_load       |    5462
+ mart_repair_sla        |   43156
+ fact_storage           |  525255
+ mart_storage_turnover  |  334221
+ fact_repair            | 1556809
+(6 �����)
+
+

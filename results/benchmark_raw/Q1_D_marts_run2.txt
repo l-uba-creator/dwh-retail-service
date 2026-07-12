@@ -1,0 +1,21 @@
+                                                                QUERY PLAN                                                                 
+-------------------------------------------------------------------------------------------------------------------------------------------
+ HashAggregate  (cost=1359.97..1361.77 rows=120 width=69) (actual time=3.331..3.419 rows=120 loops=1)
+   Group Key: center_sk, category
+   Batches: 1  Memory Usage: 64kB
+   Buffers: shared hit=99
+   ->  Bitmap Heap Scan on mart_repair_sla  (cost=244.34..1324.92 rows=3505 width=37) (actual time=0.849..1.453 rows=3595 loops=1)
+         Recheck Cond: ((date_sk >= '2025-06-01'::date) AND (date_sk < '2025-07-01'::date))
+         Heap Blocks: exact=44
+         Buffers: shared hit=99
+         ->  Bitmap Index Scan on mart_repair_sla_pkey  (cost=0.00..243.47 rows=3505 width=0) (actual time=0.821..0.821 rows=3595 loops=1)
+               Index Cond: ((date_sk >= '2025-06-01'::date) AND (date_sk < '2025-07-01'::date))
+               Buffers: shared hit=55
+ Planning:
+   Buffers: shared hit=175
+ Planning Time: 3.866 ms
+ Execution Time: 3.877 ms
+(15 �����)
+
+
+--------------------------------------------------------------------------------

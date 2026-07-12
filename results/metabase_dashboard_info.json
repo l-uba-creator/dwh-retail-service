@@ -1,0 +1,7 @@
+{
+  "admin_url": "http://localhost:3000/dashboard/2",
+  "public_url": "http://localhost:3000/public/dashboard/767665e0-383e-427a-a2a2-0c9cb4862381",
+  "dashboard_id": 2,
+  "database_id": 2,
+  "note": "Локальный Metabase (Docker/WSL2 недоступны на машине практики). Ссылка работает, пока запущен java -jar .local/metabase.jar на этом ПК. Скриншот дашборда: results/metabase_dashboard_1.png."
+}
